@@ -169,7 +169,7 @@ class Ui_MainWindow(object):
     def result(self):
         res = eval(self.label.text())
         self.label.setText(str(res))
-        self.is_equal = True
+        
 
     def clear_one_symbol(self):
         cl = self.label.text()[0:len(self.label.text())-1]
