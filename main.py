@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import math
+
 
 # Form implementation generated from reading ui file 'calcl.ui'
 #
@@ -10,7 +10,7 @@ import math
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from math import sqrt
+from PyQt5.QtWidgets import QMessageBox
 
 
 class Ui_MainWindow(object):
@@ -92,7 +92,7 @@ class Ui_MainWindow(object):
         self.btn_delenie.setStyleSheet("background-color: rgb(119, 118, 123);")
         self.btn_delenie.setObjectName("btn_delenie")
         self.btn_bs = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_bs.setGeometry(QtCore.QRect(300, 50, 121, 180))
+        self.btn_bs.setGeometry(QtCore.QRect(300, 110, 121, 110))
         self.btn_bs.setStyleSheet("background-color: rgb(119, 118, 123);\n"
 "background-color: rgb(224, 27, 36);")
         self.btn_bs.setObjectName("btn_bs")
@@ -104,6 +104,10 @@ class Ui_MainWindow(object):
         self.btn_stepen.setGeometry(QtCore.QRect(240, 50, 61, 61))
         self.btn_stepen.setStyleSheet("background-color: rgb(119, 118, 123);")
         self.btn_stepen.setObjectName("btn_stepen")
+        self.btn_abs = QtWidgets.QPushButton(self.centralwidget)
+        self.btn_abs.setGeometry(QtCore.QRect(300, 50, 120, 61))
+        self.btn_abs.setStyleSheet("background-color: rgb(119, 118, 123);")
+        self.btn_abs.setObjectName("btn_abs")
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.retranslateUi(MainWindow)
@@ -135,6 +139,7 @@ class Ui_MainWindow(object):
         self.btn_bs.setText(_translate("MainWindow", "⌫"))
         self.btn_C.setText(_translate('MainWindow', 'C'))
         self.btn_stepen.setText(_translate('MainWindow', '**'))
+        self.btn_abs.setText(_translate('MainWindow','+/-'))
 
     def add_func(self):
         self.btn_0.clicked.connect(lambda: self.write_number(self.btn_0.text()))
@@ -151,8 +156,9 @@ class Ui_MainWindow(object):
         self.btn_minus.clicked.connect(lambda: self.write_number(self.btn_minus.text()))
         self.btn_delenie.clicked.connect(lambda: self.write_number(self.btn_delenie.text()))
         self.btn_multi.clicked.connect(lambda: self.write_number(self.btn_multi.text()))
-
         self.btn_stepen.clicked.connect(lambda: self.write_number(self.btn_stepen.text()))
+
+        self.btn_abs.clicked.connect(self.module)
 
         self.btn_bs.clicked.connect(self.clear_one_symbol)
         self.btn_C.clicked.connect(self.clear)
@@ -160,24 +166,66 @@ class Ui_MainWindow(object):
         self.btn_ravno.clicked.connect(self.result)
 
     def write_number(self, number):
-        if self.label.text() == '0' or self.is_equal and number not in '+-%**/':
+        d = ('**', '*', '-', '/', '+')
+        if self.label.text() == '0' or self.is_equal:
             self.label.setText(number)
             self.is_equal = False
         else:
             self.label.setText(self.label.text() + number)
 
+        if self.label.text() in d:
+            error = QMessageBox()
+            error.setWindowTitle('Ошибка')
+            error.setText('Знак не может стоять первым')
+            error.setIcon(QMessageBox.Warning)
+            error.setStandardButtons(QMessageBox.Ok)
+
+            self.label.setText('0')
+            error.exec_()
+
+
     def result(self):
-        res = eval(self.label.text())
-        self.label.setText(str(res))
-        self.is_equal = True
+        d = ('**', '*', '-', '/', '+')
+        if self.label.text()[-1] not in d:
+            res = eval(self.label.text())
+            self.label.setText(str(res))
+        else:
+            error = QMessageBox()
+            error.setWindowTitle('Ошибка')
+            error.setText('Знак не может стоять последним')
+            error.setIcon(QMessageBox.Warning)
+            error.setStandardButtons(QMessageBox.Ok)
+
+            error.exec_()
+
         
 
     def clear_one_symbol(self):
         cl = self.label.text()[0:len(self.label.text())-1]
         self.label.setText(cl)
 
+
     def clear(self):
         self.label.setText('0')
+        self.is_equal = True
+
+    def module(self):
+        if self.label.text()[0] != '-':
+            self.label.setText('-' + self.label.text())
+
+        elif self.label.text()[0] == '-':
+            self.label.setText(self.label.text()[1:len(self.label.text())])
+
+        elif self.label.text() == '0' and self.is_equal:
+            error = QMessageBox()
+            error.setWindowTitle('Ошибка')
+            error.setText('Ноль не может быть отрицательным')
+            error.setIcon(QMessageBox.Warning)
+            error.setStandardButtons(QMessageBox.Ok)
+
+            error.exec_()
+
+
 
 
 if __name__ == "__main__":
